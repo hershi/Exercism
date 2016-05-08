@@ -7,7 +7,7 @@ pub fn anagrams_for(word : &str, inputs : &[&str]) -> Vec<String> {
     inputs.iter()
         .filter(|input| {
             let lowercase_input = input.to_lowercase();
-            word != lowercase_input && word_char_map.eq(&into_character_map(&lowercase_input))
+            word != lowercase_input && word_char_map == into_character_map(&lowercase_input)
         })
         .map(|s| s.to_string())
         .collect()
