@@ -36,7 +36,6 @@ impl Allergies {
             .into_iter()
             .filter(|allergen| { self.is_allergic_to(&allergen) })
             .cloned()
-            .collect::<Vec<_>>()
+            .collect()
     }
 }
-
