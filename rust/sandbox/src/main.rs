@@ -1,22 +1,36 @@
-use std::collections::HashMap;
-
 fn main(){
-    println!("{:?}", into_character_map());
-    println!("{:?}", bar("helloooooo"));
+    let x = Allergies::new(&98);
+    println!("Eggs {}", x.is_allergic_to(&Allergen::Eggs));
+    println!("Peanuts {}", x.is_allergic_to(&Allergen::Peanuts));
+    println!("Shellfish {}", x.is_allergic_to(&Allergen::Shellfish));
+    println!("Strawberries {}", x.is_allergic_to(&Allergen::Strawberries));
+    println!("Tomatoes {}", x.is_allergic_to(&Allergen::Tomatoes));
+    println!("Chocolate {}", x.is_allergic_to(&Allergen::Chocolate));
+    println!("Pollen {}", x.is_allergic_to(&Allergen::Pollen));
+    println!("Cats {}", x.is_allergic_to(&Allergen::Cats));
 }
 
-fn into_character_map() -> HashMap<char, i32> {
-    let mut x = HashMap::new();
-    x.insert('c',2);
-    x.insert('d',3);
-
-    x
+#[derive(Clone)]
+pub enum Allergen {
+    Eggs,
+    Peanuts,
+    Shellfish,
+    Strawberries,
+    Tomatoes,
+    Chocolate,
+    Pollen,
+    Cats
 }
 
+pub struct Allergies(u32);
 
-fn bar(word: &str) -> HashMap<char, i32> {
-    word.chars().fold(HashMap::new(), |mut acc, c| {
-        *acc.entry(c).or_insert(0) += 1;
-        acc
-    })
+impl Allergies {
+    pub fn new(val : &u32) -> Allergies {
+        Allergies(*val)
+    }
+
+    pub fn is_allergic_to(&self, allergen : &Allergen) -> bool {
+        (self.0 & 2u32.pow(allergen.clone() as u32)) != 0
+    }
 }
+

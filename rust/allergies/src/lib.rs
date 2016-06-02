@@ -1,4 +1,4 @@
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Allergen {
     Eggs,
     Peanuts,
@@ -28,12 +28,13 @@ impl Allergies {
     }
 
     pub fn is_allergic_to(&self, allergen : &Allergen) -> bool {
-        (self.0 & 2u32.pow(allergen.clone() as u32)) != 0
+        (self.0 & 2u32.pow(*allergen as u32)) != 0
+        //(self.0 & (1 << *allergen as u32)) != 0
     }
 
     pub fn allergies(&self) -> Vec<Allergen> {
         ALL_ALERGENS
-            .into_iter()
+            .iter()
             .filter(|allergen| { self.is_allergic_to(&allergen) })
             .cloned()
             .collect()
