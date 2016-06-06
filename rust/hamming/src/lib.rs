@@ -4,9 +4,6 @@ pub fn hamming_distance(lhs : &str, rhs: &str) -> Result<i32, &'static str> {
     }
     
     Ok(lhs.chars().zip(rhs.chars())
-          .fold(0, |accumulator, (lhs,rhs)| { accumulator + bool_to_int(lhs != rhs) }  ))
-}
-
-fn bool_to_int(value : bool) -> i32 {
-    if value { return 1;} 0
+       .fold(0, |accumulator, (lhs,rhs)| { accumulator + (if lhs != rhs {1} else {0} )} )
+    )
 }
