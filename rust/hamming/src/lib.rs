@@ -1,9 +1,9 @@
-pub fn hamming_distance(lhs : &str, rhs: &str) -> Result<i32, &'static str> {
+pub fn hamming_distance(lhs : &str, rhs: &str) -> Result<usize, &'static str> {
     if lhs.len() != rhs.len() {
         return Err("inputs of different length");
     }
     
     Ok(lhs.chars().zip(rhs.chars())
-       .fold(0, |accumulator, (lhs,rhs)| { accumulator + (if lhs != rhs {1} else {0} )} )
-    )
+       .filter(|&(l,r)| l!= r)
+       .count())
 }
