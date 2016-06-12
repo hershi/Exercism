@@ -1,7 +1,11 @@
 pub fn reply( sentence : &str) -> &'static str {
-    if sentence.is_empty() { return "Fine. Be that way!"; }
-    if sentence.to_uppercase() == sentence { return "Whoa, chill out!"; }
-    if sentence.ends_with("?") { return "Sure."; }
+    let evaluators : Vec<(Box<Fn(&str)->bool>, &str)> = vec![
+        (Box::new(|s : &str| s.is_empty()), "Fine. Be that way!" ),
+        (Box::new(|s : &str| s.to_uppercase() == s), "Whoa, chill out!" ),
+        (Box::new(|s : &str| s.ends_with("?")), "Sure.")
+    ];
     
-    "Whatever."
+    evaluators.iter()
+              .find(|element| element.0(sentence))
+              .map_or("Whatever.", |element| element.1)
 }
