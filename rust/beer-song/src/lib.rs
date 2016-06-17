@@ -1,28 +1,10 @@
-const COUNT_UPPER_BOUND : u32 = 100;
-
-fn bottles_of_beer(count : u32) -> String {
-    let how_many = if count > 0 {count.to_string()} else {"No more".to_string()}; 
-    let bottles = if count == 1 { "bottle" } else { "bottles" };
-    format!("{} {} of beer", how_many, bottles)    
-}
-
-fn get_action(ordinal : u32) -> String {
-    if ordinal == 0 { return "Go to the store and buy some more".to_string()}; 
-
-    let word = if ordinal == 1 {"it"} else {"one"};
-    format!("Take {} down and pass it around", word).to_string()
-}
-
 pub fn verse(ordinal : u32) -> String {
-    let bottles = bottles_of_beer(ordinal);
-    let next_count = if ordinal > 0 { ordinal - 1 } else { COUNT_UPPER_BOUND - 1 };     
-
-    format!("{} on the wall, {}.\n\
-    {action}, {} on the wall.\n",
-        bottles,
-        bottles.to_lowercase(),
-        bottles_of_beer(next_count).to_lowercase(),
-        action = get_action(ordinal))
+    match ordinal {
+        0 =>"No more bottles of beer on the wall, no more bottles of beer.\nGo to the store and buy some more, 99 bottles of beer on the wall.\n".to_string(),
+        1 =>"1 bottle of beer on the wall, 1 bottle of beer.\nTake it down and pass it around, no more bottles of beer on the wall.\n".to_string(),
+        2 =>"2 bottles of beer on the wall, 2 bottles of beer.\nTake one down and pass it around, 1 bottle of beer on the wall.\n".to_string(),
+        _ =>format!("{} bottles of beer on the wall, {0} bottles of beer.\nTake one down and pass it around, {} bottles of beer on the wall.\n", ordinal, ordinal - 1)
+    }
 }
 
 pub fn sing(start : u32, end : u32) -> String {
