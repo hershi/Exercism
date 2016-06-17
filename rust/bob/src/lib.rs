@@ -1,8 +1,12 @@
-pub fn reply( sentence : &str) -> &'static str {
-    let evaluators : Vec<(Box<Fn(&str)->bool>, &str)> = vec![
-        (Box::new(|s : &str| s.is_empty()), "Fine. Be that way!" ),
-        (Box::new(|s : &str| s.to_uppercase() == s), "Whoa, chill out!" ),
-        (Box::new(|s : &str| s.ends_with("?")), "Sure.")
+pub fn reply( sentence : &str) -> &str {
+    let eval_nothing_said = |s : &str| s.is_empty();
+    let eval_shouting = |s : &str| s.to_uppercase() == s;
+    let eval_question = |s : &str| s.ends_with("?");
+      
+    let evaluators : Vec<(&Fn(&str)->bool, &str)> = vec![
+        (&eval_nothing_said, "Fine. Be that way!" ),
+        (&eval_shouting, "Whoa, chill out!" ),
+        (&eval_question, "Sure.")
     ];
     
     evaluators.iter()
