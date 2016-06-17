@@ -11,6 +11,5 @@ pub fn sing(start : u32, end : u32) -> String {
     (end..start + 1).rev()
                     .map(|ordinal| verse(ordinal))
                     .collect::<Vec<String>>()
-                    .as_slice()
                     .join("\n")
 }
