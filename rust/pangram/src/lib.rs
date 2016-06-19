@@ -2,7 +2,8 @@ use std::collections::HashSet;
 
 pub fn is_pangram(sentence : &str) -> bool {
     sentence.chars()
-            .filter(|c| {let lc = c.to_lowercase().next().unwrap(); ('a' <= lc) && (lc <= 'z')})
+            .map(|c| c.to_lowercase().next().unwrap())
+            .filter(|c| ('a' <= *c) && (*c <= 'z'))
             .collect::<HashSet<char>>()
             .len() == 26
 }
