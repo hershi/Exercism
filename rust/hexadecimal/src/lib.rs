@@ -1,15 +1,7 @@
 pub fn hex_to_int(input : &str) -> Option<u32> {
     input.chars()
-         .rev()
-         // For each digit convert it to the actual numeric
-         // value
-         .map(|x| char_to_digit(&x))
-         // Each digit's actual contribution to the result is determined
-         // by its position. Least-significant digit needs to be multiplied by 16^0,
-         // next one needs to be multiplied by 16^1, etc.
-         // We use 'enumerate' to have the position available together with the
-         // digit
-         .enumerate()
+         // For each digit convert it to the actual numeric value
+         .map(|c| char_to_digit(&c))
          // We use 'fold' to do the accumulation, but there's a twist we need
          // to handle - if any of the digits alongs the way is invalid and cannot
          // be converted, we need to return 'None'. How do we achieve that?
@@ -23,10 +15,8 @@ pub fn hex_to_int(input : &str) -> Option<u32> {
          // to 'map') to avoid double-wrapping the result in Option 
          .fold(
               Some(0), 
-              |result, (i, digit)| result.and_then(
-                  |result| digit.map(
-                      |digit| result + digit * 16u32.pow(i as u32)
-                  )
+              |result, digit| result.and_then(
+                  |result| digit.map(|digit| result * 16 + digit)
               )
          ) 
 }
