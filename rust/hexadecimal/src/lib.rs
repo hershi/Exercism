@@ -1,17 +1,34 @@
 pub fn hex_to_int(input : &str) -> Option<u32> {
-    let mut result = 0;
-
-    for (i, c) in input.chars().rev().enumerate() {
-        match char_to_digit(&c) {
-            // While the digits are valid, add them to the result
-            Some(d) => result += d * 16u32.pow(i as u32),
-            // Return 'None' as soon as an illegal digit is found 
-            None => return None
-        }
-    }
-
-    // All digits were valid, so return a proper result
-    Some(result)
+    input.chars()
+         .rev()
+         // For each digit convert it to the actual numeric
+         // value
+         .map(|x| char_to_digit(&x))
+         // Each digit's actual contribution to the result is determined
+         // by its position. Least-significant digit needs to be multiplied by 16^0,
+         // next one needs to be multiplied by 16^1, etc.
+         // We use 'enumerate' to have the position available together with the
+         // digit
+         .enumerate()
+         // We use 'fold' to do the accumulation, but there's a twist we need
+         // to handle - if any of the digits alongs the way is invalid and cannot
+         // be converted, we need to return 'None'. How do we achieve that?
+         // 1. We make the accumulator an Option
+         // 2. Since 'digit' is an Option, whenever processing a digit, we
+         // use map() to do the transformation, which means it will return
+         // None if the digit was 'None'
+         // 3. If the accumulator is already None, then we don't need to
+         // to do any more processing, so we gate the processing of 'digit'
+         // on whether 'result' is None or not. We use and_then (as opposed
+         // to 'map') to avoid double-wrapping the result in Option 
+         .fold(
+              Some(0), 
+              |result, (i, digit)| result.and_then(
+                  |result| digit.map(
+                      |digit| result + digit * 16u32.pow(i as u32)
+                  )
+              )
+         ) 
 }
 
 // Ideally, one would use to_digit... but then again, you could say the same about
