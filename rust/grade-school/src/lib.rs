@@ -1,12 +1,12 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 pub struct School {
-    grades : HashMap<u32, Vec<String>>,
+    grades : BTreeMap<u32, Vec<String>>,
 } 
 
 impl School {
     pub fn new() -> School {
-        School { grades : HashMap::new() }
+        School { grades : BTreeMap::new() }
     }
 
     pub fn add(&mut self, grade: u32, student_name : &str) {
@@ -29,12 +29,7 @@ impl School {
     }
 
     pub fn grades(&self) -> Vec<u32> {
-        let mut result = self.grades.keys().map(|k| *k).collect::<Vec<u32>>();
-
-        // Since keys() returns the keys in arbitrary order, we need to sort them
-        // before returning them.
-        result.sort();
-        result
+        self.grades.keys().map(|k| *k).collect::<Vec<u32>>()
     }
 
     pub fn grade(&self, grade : u32) -> Option<&Vec<String>> {
