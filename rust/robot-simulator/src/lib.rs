@@ -1,13 +1,25 @@
 // The code below is a stub. Just enough to satisfy the compiler.
 // In order to pass the tests you can add-to or change any of this code.
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub enum Direction {
     North,
     East,
     South,
     West,
 }
+
+// Ordered list of directions, in clockwise ordering
+// Relies on having the same ordering as the enum variants for Direction, because
+// we use the ordinal of the enum variants to index into the array
+// I'll attempt to create a macro that takes in the variant names and creates the enum
+// as well as the corresponding array (in a later iteration)
+const DIRECTIONS : [Direction; 4] = [Direction::North, Direction::East, Direction::South, Direction::West];
+
+// This array has the corresponding movements effect for each direction
+// Similar to the above, this has correspondence to the order of directios int he enum
+// specification (first element corresponds to the first direction variant, etc.)
+const MOVEMENTS : [(isize,isize);4] = [(0,1),(1,0),(0,-1),(-1,0)];
 
 pub struct Robot {
     direction : Direction,
@@ -20,35 +32,21 @@ impl Robot {
     }
 
     pub fn turn_right(self) -> Self {
-        let new_direction = match self.direction {
-            Direction::North => Direction::East,
-            Direction::East => Direction::South,
-            Direction::South => Direction::West,
-            Direction::West => Direction::North
-        };
+        let index = ((self.direction as usize) + 1) % DIRECTIONS.len();
+        let new_direction = DIRECTIONS[index].clone();
         
         Robot{direction : new_direction, position : self.position}
     }
 
     pub fn turn_left(self) -> Self {
-        let new_direction = match self.direction {
-            Direction::East => Direction::North,
-            Direction::South => Direction::East,
-            Direction::West => Direction::South,
-            Direction::North => Direction::West 
-        };
+        let index = ((self.direction as usize) + 3) % DIRECTIONS.len();
+        let new_direction = DIRECTIONS[index].clone();
 
         Robot{direction : new_direction, position : self.position}
     }
 
     pub fn advance(self) -> Self {
-        let (x,y) = match self.direction {
-            Direction::East => (1,0),
-            Direction::South => (0,-1),
-            Direction::West => (-1,0),
-            Direction::North => (0,1) 
-        };
-
+        let (x,y) = MOVEMENTS[self.direction.clone() as usize];
         let (a,b) = self.position;
         Robot{direction : self.direction, position : (x + a, y + b)}
     }
