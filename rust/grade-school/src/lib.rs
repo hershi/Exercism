@@ -20,7 +20,7 @@ impl School {
         // to &str for comparison, because there's no 'cmp' defined in the standard
         // library where the LHS is a &String and RHS is a &str.
         let insertion_index = 
-            match (*entry).binary_search_by(|s| (s.as_str()).cmp(student_name)) {
+            match (*entry).binary_search_by(|s| s.as_str().cmp(student_name)) {
                 Ok(x) => x,
                 Err(x) => x
             };
