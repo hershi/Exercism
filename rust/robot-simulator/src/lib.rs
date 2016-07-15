@@ -1,5 +1,5 @@
-// The code below is a stub. Just enough to satisfy the compiler.
-// In order to pass the tests you can add-to or change any of this code.
+use std::ops::Add;
+
 
 #[derive(PartialEq, Debug, Clone)]
 pub enum Direction {
@@ -21,14 +21,27 @@ const DIRECTIONS : [Direction; 4] = [Direction::North, Direction::East, Directio
 // specification (first element corresponds to the first direction variant, etc.)
 const MOVEMENTS : [(isize,isize);4] = [(0,1),(1,0),(0,-1),(-1,0)];
 
+struct Position {
+    x : isize,
+    y : isize,
+}
+
+impl Add<(isize,isize)> for Position {
+    type Output = Position;
+
+    fn add(self, rhs : (isize,isize)) -> Position {
+        Position {x: self.x + rhs.0, y: self.y + rhs.1}
+    }
+}
+
 pub struct Robot {
     direction : Direction,
-    position : (isize, isize),
+    position : Position,
 }
 
 impl Robot {
     pub fn new(x: isize, y: isize, d: Direction) -> Self {
-        Robot{direction : d, position : (x,y)}
+        Robot{direction : d, position : Position{x : x, y: y}}
     }
 
     pub fn turn_right(self) -> Self {
@@ -46,9 +59,8 @@ impl Robot {
     }
 
     pub fn advance(self) -> Self {
-        let (x,y) = MOVEMENTS[self.direction.clone() as usize];
-        let (a,b) = self.position;
-        Robot{direction : self.direction, position : (x + a, y + b)}
+        let movement = MOVEMENTS[self.direction.clone() as usize];
+        Robot{direction : self.direction, position: self.position + movement}
     }
 
     pub fn instructions(self, instructions: &str) -> Self {
@@ -63,7 +75,7 @@ impl Robot {
     }
 
     pub fn position(&self) -> (isize, isize) {
-        self.position
+        (self.position.x, self.position.y)
     }
 
     pub fn direction(&self) -> &Direction {
