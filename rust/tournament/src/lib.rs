@@ -1,19 +1,15 @@
 use std::str::FromStr;
 use std::collections::HashMap;
+use std::cmp::Ordering;
+use std::fmt;
 
 pub fn tally(input : &String) -> String {
     let mut team_results = tally_internal(input).into_iter().collect::<Vec<(String, TeamTally)>>();
 
-    team_results.as_mut_slice().sort_by(|t1, t2| t2.1.get_points().cmp(&t1.1.get_points()));
+    team_results.as_mut_slice().sort_by(compare_results);
 
     let team_results = team_results.into_iter().map(|x| {
-        format!("{:31}|{:3} |{:3} |{:3} |{:3} |{:3}", 
-            x.0.to_string(), 
-            x.1.get_matches_played(),
-            x.1.won,
-            x.1.draw,
-            x.1.lost,
-            x.1.get_points() )
+        format!("{:31}|{}", x.0.to_string(), x.1)
     });
 
     let mut result = format!("{:31}|{:>3} |{:>3} |{:>3} |{:>3} |{:>3}", "Team", "MP", "W", "D", "L", "P");
@@ -24,9 +20,7 @@ pub fn tally(input : &String) -> String {
 fn tally_internal(input : &String) -> HashMap<String, TeamTally> {
     let mut accumulator = HashMap::new();
     for result in input.split('\n')
-                       .map(|line| line.parse())
-                       .filter(|x| x.is_ok())
-                       .map(|r| r.unwrap()) {
+                       .filter_map(|line| line.parse().ok()) {
         match result {
             MatchResult::Draw{team1, team2} => {
                 accumulator.entry(team1).or_insert(TeamTally::new()).draw += 1;                
@@ -40,6 +34,11 @@ fn tally_internal(input : &String) -> HashMap<String, TeamTally> {
     }
 
     accumulator
+}
+
+fn compare_results(team1 : &(String, TeamTally), team2 : &(String, TeamTally)) -> Ordering {
+    let first_order = team2.1.get_points().cmp(&team1.1.get_points());
+    if first_order != Ordering::Equal { first_order } else { team1.0.cmp(&team2.0) }
 }
 
 struct TeamTally {
@@ -59,6 +58,13 @@ impl TeamTally {
     
     fn get_points(&self) -> u32 {
         self.won * 3 + self.draw
+    }
+}
+
+impl fmt::Display for TeamTally {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:>3} |{:>3} |{:>3} |{:>3} |{:>3}", 
+            self.get_matches_played(), self.won, self.draw, self.lost, self.get_points())
     }
 }
 
