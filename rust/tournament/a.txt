@@ -1,0 +1,21 @@
+     Running target\debug\tournament-8073b454b2cee06c.exe
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured
+
+     Running target\debug\tournament-6cfb3befe29d5079.exe
+
+running 3 tests
+test test_incomplete_competition ... ok
+test test_ignore_bad_lines ... ok
+test test_good ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured
+
+   Doc-tests tournament
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured
+

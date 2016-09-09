@@ -4,21 +4,32 @@ use std::cmp::Ordering;
 use std::fmt;
 
 pub fn tally(input : &String) -> String {
+    // Get the per-team results and sort them by score, then by name
     let mut team_results = tally_internal(input).into_iter().collect::<Vec<(String, TeamTally)>>();
+    team_results.as_mut_slice().sort_by(compare_by_score_then_by_name);
 
-    team_results.as_mut_slice().sort_by(compare_results);
-
-    let team_results = team_results.into_iter().map(|x| {
-        format!("{:31}|{}", x.0.to_string(), x.1)
+    // Tranform each result object to a string
+    let team_results = team_results.iter().map(|x| {
+        format!("{:31}|{}", x.0, x.1)
     });
 
+    // Initialize the result with the header, then ad all the result strings
     let mut result = format!("{:31}|{:>3} |{:>3} |{:>3} |{:>3} |{:>3}", "Team", "MP", "W", "D", "L", "P");
     for r in team_results { result.push_str("\n"); result.push_str(&r); }
     result
 }
 
+fn compare_by_score_then_by_name(team1 : &(String, TeamTally), team2 : &(String, TeamTally)) -> Ordering {
+    let first_order = team2.1.get_points().cmp(&team1.1.get_points());
+    if first_order != Ordering::Equal { first_order } else { team1.0.cmp(&team2.0) }
+}
+
 fn tally_internal(input : &String) -> HashMap<String, TeamTally> {
     let mut accumulator = HashMap::new();
+
+    // Split the input into lines, 
+    // Parse each line and ignore the ones that fail parsing
+    // For each parsed line, update the win/loss/draw count for the teams
     for result in input.split('\n')
                        .filter_map(|line| line.parse().ok()) {
         match result {
@@ -36,11 +47,9 @@ fn tally_internal(input : &String) -> HashMap<String, TeamTally> {
     accumulator
 }
 
-fn compare_results(team1 : &(String, TeamTally), team2 : &(String, TeamTally)) -> Ordering {
-    let first_order = team2.1.get_points().cmp(&team1.1.get_points());
-    if first_order != Ordering::Equal { first_order } else { team1.0.cmp(&team2.0) }
-}
-
+// The TeamTally objects represent the aggregate results for a single team - 
+// how many wins, losses, and draws it had, as well as the score and matches-played (inferred
+// based on the wins/losses/draws).
 struct TeamTally {
     won : u32,
     draw : u32,
@@ -68,6 +77,8 @@ impl fmt::Display for TeamTally {
     }
 }
 
+// MatchResult instances describe the result of a single match. They are used
+// to parse the textual input into a structured form.
 enum MatchResult {
     NonDraw {winning_team : String, losing_team : String},
     Draw {team1 : String, team2 : String}
