@@ -85,9 +85,9 @@ enum MatchResult<'a> {
 }
 
 impl <'a> MatchResult<'a> {
-    fn from_str(s : &'a str) -> Result<MatchResult<'a>, &'static str> {
+    fn from_str<'b>(s : &'b str) -> Result<MatchResult<'b>, &'static str> {
         let spl = s.split(';');
-        let splits = spl.collect::<Vec<&'a str>>();
+        let splits = spl.collect::<Vec<&'b str>>();
         if splits.len() != 3 {
             return Err("Wrong # of parts");
         }
