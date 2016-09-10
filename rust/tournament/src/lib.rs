@@ -1,4 +1,3 @@
-use std::str::FromStr;
 use std::collections::HashMap;
 use std::cmp::Ordering;
 use std::fmt;
@@ -74,7 +73,7 @@ impl TeamTally {
 
 impl fmt::Display for TeamTally {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:>3} |{:>3} |{:>3} |{:>3} |{:>3}", 
+        write!(f, "{:>3} |{:>3} |{:>3} |{:>3} |{:>3}",
             self.get_matches_played(), self.won, self.draw, self.lost, self.get_points())
     }
 }
@@ -88,8 +87,7 @@ enum MatchResult<'a> {
 
 impl <'a> MatchResult<'a> {
     fn from_str<'b>(s : &'b str) -> Result<MatchResult<'b>, &'static str> {
-        let spl = s.split(';');
-        let splits = spl.collect::<Vec<&'b str>>();
+        let splits = s.split(';').collect::<Vec<&'b str>>();
         if splits.len() != 3 {
             return Err("Wrong # of parts");
         }
