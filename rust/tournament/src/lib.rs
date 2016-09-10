@@ -5,7 +5,7 @@ use std::fmt;
 
 pub fn tally(input : &String) -> String {
     // Get the per-team results and sort them by score, then by name
-    let mut team_results = tally_internal(input).into_iter().collect::<Vec<(String, TeamTally)>>();
+    let mut team_results = tally_internal(input).into_iter().collect::<Vec<(&str, TeamTally)>>();
     team_results.as_mut_slice().sort_by(compare_by_score_then_by_name);
 
     // Tranform each result object to a string
@@ -19,19 +19,19 @@ pub fn tally(input : &String) -> String {
     result
 }
 
-fn compare_by_score_then_by_name(team1 : &(String, TeamTally), team2 : &(String, TeamTally)) -> Ordering {
+fn compare_by_score_then_by_name(team1 : &(&str, TeamTally), team2 : &(&str, TeamTally)) -> Ordering {
     let first_order = team2.1.get_points().cmp(&team1.1.get_points());
     if first_order != Ordering::Equal { first_order } else { team1.0.cmp(&team2.0) }
 }
 
-fn tally_internal(input : &String) -> HashMap<String, TeamTally> {
+fn tally_internal(input : &String) -> HashMap<&str, TeamTally> {
     let mut accumulator = HashMap::new();
 
     // Split the input into lines, 
     // Parse each line and ignore the ones that fail parsing
     // For each parsed line, update the win/loss/draw count for the teams
     for result in input.split('\n')
-                       .filter_map(|line| line.parse().ok()) {
+                       .filter_map(|line| MatchResult::from_str(line).ok()) {
         match result {
             MatchResult::Draw{team1, team2} => {
                 accumulator.entry(team1).or_insert(TeamTally::new()).draw += 1;                
@@ -79,28 +79,27 @@ impl fmt::Display for TeamTally {
 
 // MatchResult instances describe the result of a single match. They are used
 // to parse the textual input into a structured form.
-enum MatchResult {
-    NonDraw {winning_team : String, losing_team : String},
-    Draw {team1 : String, team2 : String}
+enum MatchResult<'a> {
+    NonDraw {winning_team : &'a str, losing_team : &'a str},
+    Draw {team1 : &'a str, team2 : &'a str}
 }
 
-impl FromStr for MatchResult {
-    type Err = &'static str;
-
-    fn from_str(s : &str) -> Result<MatchResult, &'static str> {
-        let splits = s.split(';').collect::<Vec<&str>>();
+impl <'a> MatchResult<'a> {
+    fn from_str(s : &'a str) -> Result<MatchResult<'a>, &'static str> {
+        let spl = s.split(';');
+        let splits = spl.collect::<Vec<&'a str>>();
         if splits.len() != 3 {
             return Err("Wrong # of parts");
         }
 
         if splits[2] == "win" {
-            Ok(MatchResult::NonDraw{winning_team : splits[0].to_string(), losing_team : splits[1].to_string()})
+            Ok(MatchResult::NonDraw{winning_team : splits[0], losing_team : splits[1]})
         }
         else if splits[2] == "loss" {
-            Ok(MatchResult::NonDraw{winning_team : splits[1].to_string(), losing_team : splits[0].to_string()})
+            Ok(MatchResult::NonDraw{winning_team : splits[1], losing_team : splits[0]})
         }
         else if splits[2] == "draw" {
-            Ok(MatchResult::Draw{team1 : splits[0].to_string(), team2 : splits[1].to_string()})
+            Ok(MatchResult::Draw{team1 : splits[0], team2 : splits[1]})
         }
         else {
             Err("Invalid match outcome")
