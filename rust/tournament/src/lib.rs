@@ -20,8 +20,10 @@ pub fn tally(input : &String) -> String {
 }
 
 fn compare_by_score_then_by_name(team1 : &(&str, TeamTally), team2 : &(&str, TeamTally)) -> Ordering {
-    let first_order = team2.1.get_points().cmp(&team1.1.get_points());
-    if first_order != Ordering::Equal { first_order } else { team1.0.cmp(&team2.0) }
+    match team2.1.get_points().cmp(&team1.1.get_points()) {
+        Ordering::Equal => team1.0.cmp(&team2.0),
+        x => x ,
+    }
 }
 
 fn tally_internal(input : &String) -> HashMap<&str, TeamTally> {
@@ -92,56 +94,11 @@ impl <'a> MatchResult<'a> {
             return Err("Wrong # of parts");
         }
 
-        if splits[2] == "win" {
-            Ok(MatchResult::NonDraw{winning_team : splits[0], losing_team : splits[1]})
-        }
-        else if splits[2] == "loss" {
-            Ok(MatchResult::NonDraw{winning_team : splits[1], losing_team : splits[0]})
-        }
-        else if splits[2] == "draw" {
-            Ok(MatchResult::Draw{team1 : splits[0], team2 : splits[1]})
-        }
-        else {
-            Err("Invalid match outcome")
-        }
-    }
-}
-
-
-
-/*
-Lifetimes issue:
-
-#[macro_use]
-extern crate lazy_static;
-
-use std::str::FromStr;
-
-pub fn tally(input : &String) -> String {
-    "".to_string()
-}
-
-enum MatchResult<'a> {
-    NonDraw {winning_team : &'a str, losing_team : &'a str},
-    Draw {team1 : &'a str, team2 : &'a str}
-}
-
-impl <'a> FromStr for MatchResult<'a> {
-    type Err = &'static str;
-
-    fn from_str(s : &'a str) -> Result<MatchResult<'a>, &'static str> {
-        let mut splits = Vec::new();
-        for x in s.split(';') { splits.push(x); }
-        if splits.len() != 3 {
-            return Err("Wrong # of parts");
-        }
-
         match splits[2] {
             "win" => Ok(MatchResult::NonDraw{winning_team : splits[0], losing_team : splits[1]}),
-            "lose" => Ok(MatchResult::NonDraw{winning_team : splits[1], losing_team : splits[0]}),
+            "loss" => Ok(MatchResult::NonDraw{winning_team : splits[1], losing_team : splits[0]}),
             "draw" => Ok(MatchResult::Draw{team1 : splits[0], team2 : splits[1]}),
-            _ => Err("Invalid match outcome")
+            _ => Err("Invalid match outcome"),
         }
     }
 }
-*/
