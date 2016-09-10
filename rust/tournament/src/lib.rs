@@ -31,7 +31,7 @@ fn tally_internal(input : &String) -> HashMap<&str, TeamTally> {
     // Parse each line and ignore the ones that fail parsing
     // For each parsed line, update the win/loss/draw count for the teams
     for result in input.split('\n')
-                       .filter_map(|line| MatchResult::from_str(line).ok()) {
+                       .filter_map(|line| line.parse().ok()) {
         match result {
             MatchResult::Draw{team1, team2} => {
                 accumulator.entry(team1).or_insert(TeamTally::new()).draw += 1;                
@@ -84,10 +84,11 @@ enum MatchResult<'a> {
     Draw {team1 : &'a str, team2 : &'a str}
 }
 
-impl <'a> MatchResult<'a> {
-    fn from_str<'b>(s : &'b str) -> Result<MatchResult<'b>, &'static str> {
-        let spl = s.split(';');
-        let splits = spl.collect::<Vec<&'b str>>();
+impl <'a> FromStr for MatchResult<'a> {
+    type Err = &'static str;
+
+    fn from_str<'b,'c : 'b>(s : &'b str) -> Result<MatchResult<'c>, &'static str> {
+        let splits = s.split(';').collect::<Vec<&'c str>>();
         if splits.len() != 3 {
             return Err("Wrong # of parts");
         }
