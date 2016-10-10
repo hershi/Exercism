@@ -3,15 +3,17 @@ pub struct PascalsTriangle{
 }
 
 impl PascalsTriangle {
-    pub fn new(row_count: u32) -> Self {
-        let mut triangle = Vec::with_capacity(row_count as usize);
+    pub fn new(row_count: usize) -> Self {
+        let mut triangle = Vec::with_capacity(row_count);
 
         if row_count == 0 { return PascalsTriangle{triangle : triangle}; }
         
+        // At least one row - push the first row to the triangle
         triangle.push(vec![1]);
 
-        for i in 2..row_count + 1 {
-            let new_line = PascalsTriangle::generate_row(&triangle[(i - 2) as usize]);
+        // For the remainnig rows, generate each row based on the previous row
+        for i in 1..row_count {
+            let new_line = PascalsTriangle::generate_row(&triangle[(i - 1)]);
             triangle.push(new_line);
         }
 
