@@ -88,14 +88,12 @@ enum MatchResult<'a> {
 impl <'a> MatchResult<'a> {
     fn from_str<'b>(s : &'b str) -> Result<MatchResult<'b>, &'static str> {
         let splits = s.split(';').collect::<Vec<&'b str>>();
-        if splits.len() != 3 {
-            return Err("Wrong # of parts");
-        }
 
-        match splits[2] {
-            "win" => Ok(MatchResult::NonDraw{winning_team : splits[0], losing_team : splits[1]}),
-            "loss" => Ok(MatchResult::NonDraw{winning_team : splits[1], losing_team : splits[0]}),
-            "draw" => Ok(MatchResult::Draw{team1 : splits[0], team2 : splits[1]}),
+        match (splits.len(), splits.get(2)) {
+            (len, _) if len != 3 => Err("Wrong # of parts"),
+            (_, Some(&"win")) => Ok(MatchResult::NonDraw{winning_team : splits[0], losing_team : splits[1]}),
+            (_, Some(&"loss")) => Ok(MatchResult::NonDraw{winning_team : splits[1], losing_team : splits[0]}),
+            (_, Some(&"draw")) => Ok(MatchResult::Draw{team1 : splits[0], team2 : splits[1]}),
             _ => Err("Invalid match outcome"),
         }
     }
