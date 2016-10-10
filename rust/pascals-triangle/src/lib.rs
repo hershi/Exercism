@@ -21,20 +21,14 @@ impl PascalsTriangle {
     }
 
     fn generate_row(prev_row: &[u32]) -> Vec<u32> {
-        // Pre-allocate the correct size
-        let mut row = Vec::with_capacity(prev_row.len() + 1);
-
         // Each row except for the first, is made up of a 1 at each side and
         // in between them, the sum of each pair of numbers from the previous
         // row (this sum technique doesn't work for the 1's at the sides, since
         // they are a sum of only a single element)
-        row.push(1);
-        for pair in prev_row.windows(2) {
-            row.push(pair[0] + pair[1]);
-        }
-        row.push(1);
-
-        row
+        std::iter::once(1)
+            .chain( prev_row.windows(2).map(|w| w.iter().sum()) )
+            .chain(std::iter::once(1))
+            .collect()
     }
 
     pub fn rows(&self) -> Vec<Vec<u32>> {
