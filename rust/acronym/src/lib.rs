@@ -5,43 +5,26 @@ enum PreviousChar {
     Uppercase
 }
 
-enum EvalOutcome {
-    Take(char),
-    Skip
-}
-
 pub fn abbreviate(phrase : &str) -> String {
     // General approach:
-    // Use 'scan' to process each character in turn, while retaining state
-    // based on the previous character, which will be used to decide whether
-    // the current character should be included in the acronym or not:
-    // 1. If the previous character was a word boundary (i.e comes after a space or hyphen)
-    // 2. If previous character was lowercase, and current one is uppercase (for camel-case)
-    // 
-    // The 'scan' iterator emits 'Take' items for characters that should be included in
-    // in the acronym, and 'Skip' items for characters that should not be included. 
-    // We then filter only the 'Take' items, and compose the result from them.
-    phrase
-        .chars()
-        .scan(
-            PreviousChar::WordBoundary,
-            |state, c| {
-                let res = Some(
-                    if should_include(state, &c) { EvalOutcome::Take(c) } else { EvalOutcome::Skip }
-                );
-                *state = next_state(&c);
-
+    // Use 'filter' to keep only the characters that should be part of the acronym. Since
+    // we need to keep track of the previous character type to make the decision, we
+    // capture an external state variable in the closure.
+    let mut state = PreviousChar::WordBoundary;
+    phrase.chars()
+        .filter(
+            |c| {
+                let res = should_include(&state, &c);
+                state = next_state(&c);
                 res
             })
-        .filter_map(|outcome| {
-                match outcome {
-                    EvalOutcome::Take(c) => c.to_uppercase().next(),
-                    EvalOutcome::Skip => None 
-                }
-            })
-        .fold(String::new(), |mut acc, c| {acc.push(c); acc})
+        .collect::<String>()
+        .to_uppercase()
 }
 
+// Should the current character be included in the acronym? Yes, iff:
+// 1. The previous character was a word boundary (i.e space or hyphen)
+// 2. The previous character was lowercase, and current one is uppercase (for camel-case)
 fn should_include(state : &PreviousChar, current_char : &char) -> bool {
     *state == PreviousChar::WordBoundary ||
     (*state == PreviousChar::Lowercase && current_char.is_uppercase())
