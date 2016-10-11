@@ -1,28 +1,41 @@
+#[derive(Debug, PartialEq)]
+enum PreviousChar {
+    WordBoundary,
+    Lowercase,
+    Uppercase
+}
+
 pub fn abbreviate(phrase : &str) -> String {
     // General approach:
-    // Evaluate all pairs of consecutive charaters, and decide whether
-    // the second character should be added to the acronym:
-    // 1. If it comes after a space
-    // 2. If it comes after a hyphen
-    // 3. If it's an uppercase letter that comes after a lowercase one
-    //
-    // This works for all chars except for the first one, which is always part
-    // of the acronym on one hand, but is never the second char in a pair of 
-    // consecutive chars on the other hand. To simplify this, we add a space at
-    // the beginning of the string (which means the first char now follows a space
-    // which ensures it'll be part of the acronym)
-    //
-    // To evaluate all pairs, we zip an iterator of the phrase with a second
-    // iterator of the phrase which is shifted by one character.
-    std::iter::once(' ')
-        .chain(phrase.chars())
-        .zip(phrase.chars())
-        .filter(
-            |&(c1, c2)| {
-                c1.is_whitespace() ||
-                c1 == '-' ||
-                (!c1.is_uppercase() && c2.is_uppercase()) 
+    // Use 'scan' to process each character in turn, while retaining state
+    // based on the previous character, which will be used to evaluate whether
+    // the current character should be included in the acronym or not:
+    // 1. If the previous character was a word boundary (i.e comes after a space or hyphen)
+    // 3. If it's an uppercase letter that comes after a lowercase one (for camel-case)
+    // 
+    // The 'scan' iterator provides the result as a boolean - by zipping that iterator
+    // with the original chars iterator, we can filter for only the ones that should
+    // be included and compose the result from them.
+    phrase
+        .chars()
+        .scan(
+            PreviousChar::WordBoundary,
+            |state, c| {
+                let included_in_acronym = 
+                    *state == PreviousChar::WordBoundary ||
+                    (*state == PreviousChar::Lowercase && c.is_uppercase());
+
+                *state = match c {
+                    x if x.is_whitespace() => PreviousChar::WordBoundary,
+                    x if x == '-' => PreviousChar::WordBoundary,
+                    x if x.is_uppercase() => PreviousChar::Uppercase,
+                    _ => PreviousChar::Lowercase,
+                };
+
+                Some(included_in_acronym)
             })
-        .flat_map(|(_, c2)| c2.to_uppercase().next())
-        .fold(String::new(), |mut acc, c| { acc.push(c); acc })
+        .zip(phrase.chars())
+        .filter(|&(included, _)| included )
+        .flat_map(|(_, c)| c.to_uppercase().next())
+        .fold(String::new(), |mut acc, c| {acc.push(c); acc})
 }
