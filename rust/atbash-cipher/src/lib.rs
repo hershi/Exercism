@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::ascii::AsciiExt;
 use std::iter::*;
 
@@ -16,39 +15,33 @@ fn basic_encode(phrase : &str, encoder : &Encoder) -> Vec<char> {
 }
 
 pub fn encode(phrase : &str) -> String {
-    let encoder = ArithmeticEncoder{};
-    basic_encode(phrase, &encoder)
-        .into_iter()
-        .zip(once(false).chain(repeat(false).take(4).chain(once(true)).cycle()))
-        .fold(String::new(), |mut acc, (c, b)| {
-            if b { acc.push(' ')};
-            acc.push(c); 
-            acc
-            })
+    basic_encode(phrase, &ArithmeticEncoder{})
+        .as_slice()
+        .chunks(5)
+        .map(|x| x.into_iter().cloned().collect())
+        .collect::<Vec<String>>()
+        .join(" ")
 }
 
 pub fn decode(phrase : &str) -> String {
-    let encoder = ArithmeticEncoder{};
-
-    basic_encode(phrase, &encoder).into_iter().collect()
-}
-
-struct MapEncoder {
-    encoding : HashMap<char, char>, 
+    basic_encode(phrase, &ArithmeticEncoder{}).into_iter().collect()
 }
 
 struct ArithmeticEncoder {}
+
 impl Encoder for ArithmeticEncoder {
     fn encode(&self, c : &char) -> char {
-        if !c.is_alphabetic() {
-            *c 
-        } 
-        else {
-            let dist_from_a =  (*c as u32) - ('a' as u32);
-            std::char::from_u32('z' as u32 - dist_from_a).unwrap() 
+        match *c {
+            // Use byte literals to make arithmetic easy and avoid lots of "as..."
+            x@'a'...'z' => (b'z' - x as u8 + b'a') as char,
+            x@_ => x
         }
     }
 }
+
+// struct MapEncoder {
+//     encoding : HashMap<char, char>, 
+// }
 
 // impl MapEncoder {
 //     fn new() -> MapEncoder {
