@@ -1,0 +1,7 @@
+[package]
+name = "shuffle-playlist"
+version = "0.1.0"
+authors = ["hershi <hershi@gmail.com>"]
+
+[dependencies]
+rand = "*"

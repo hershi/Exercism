@@ -13,12 +13,11 @@ pub fn get_column_name(ordinal : u32, base : u8) -> String {
         }
 
         let x = match current_digit {
-            -1 => (base - 1, -1),
-            0 => (base, - 1),
-            x@_ => (x as u8,0)
+            digit if digit <= 0 => (base as i8 + digit, -1),
+            digit@_ => (digit, 0)
         };
 
-        result.push((b'a' + x.0 - 1) as char);
+        result.push((b'a' + x.0 as u8 - 1) as char);
         carry = x.1;
     }
 
